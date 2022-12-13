@@ -3,19 +3,19 @@
 const bcrypt = require('bcrypt');
 
 const FormSchema = require('../schemas/registerSchema');
-const TopicsShema = require('../schemas/TopicsSchema');
+
 
 module.exports = {
   register: async (req, res) => {
-    const { username, passOne, image } = req.body;
+    const { username, passOne, city, gender, age, photos } = req.body;
 
     const userExists = await FormSchema.findOne({ username });
     if (userExists) return res.send({ error: true, message: 'User already exists', data: null });
 
-    // REgister new user
+    // Register new user
     const hashedPassword = await bcrypt.hash(passOne, 10);
 
-    const formToDb = new FormSchema({ username, passOne: hashedPassword, image });
+    const formToDb = new FormSchema({ username, passOne: hashedPassword, city, gender, age, photos });
     await formToDb.save();
     res.send({ error: false, message: null, data: formToDb });
   },
@@ -34,10 +34,10 @@ module.exports = {
   },
   logout: async (req, res) => {
     if (req.session.user) {
-      delete req.session.user;
+      req.session.destroy();
       res.json({ loggedIn: false, result: 'SUCCESS' });
     } else {
-      res.json({ result: 'ERROR', message: 'User is not logged in.' });
+      res.json({ result: 'ERROR', message: 'Logged out.' });
     }
   },
   authSession: (req, res) => {
@@ -48,9 +48,9 @@ module.exports = {
     }
   },
   uploadPhoto: async (req, res) => {
-    const { image, username } = req.body;
+    const { photos, username } = req.body;
 
-    const img = await FormSchema.findOneAndUpdate({ username }, { image });
+    const img = await FormSchema.findOneAndUpdate({ username }, { $push: { photos } });
     res.send({ error: false, message: 'Image uploaded successfuly', data: img });
 
   },
@@ -61,33 +61,14 @@ module.exports = {
     res.send({ error: false, message: 'Image uploaded successfuly', data: user });
 
   },
-  getTopics: async (req, res) => {
+  getUsers: async (req, res) => {
 
 
-    const topics = await TopicsShema.find();
+    const users = await TopicsShema.find();
     console.log('topics ===', topics);
     res.send({ error: false, message: 'Image uploaded successfuly', data: topics });
 
   },
-  singleTopic: async (req, res) => {
-    const { _id } = req.params;
-    console.log('_id ===', _id);
-    const singleTopic = await TopicsShema.findById(_id);
-    console.log('singleTopic ===', singleTopic);
-    res.send({ error: false, message: 'Topic get successfuly', data: singleTopic });
 
-  },
-  updateTopic: async (req, res) => {
-    const { _id } = req.params;
-    // const { title, question, username } = req.body;
-    // console.log('id ===', _id);
-    // console.log('title ===', title);
-    // console.log('username ===', username);
-    // console.log('question ===', question);
-    // const updateTopic = await TopicsShema.findOneAndUpdate({ _id: _id }, { $push: { topics: { title, message: question, author: username } } });
-    // console.log('updateTopic ===', updateTopic);
-    // res.send({ error: false, message: 'Topics uploaded successfuly', data: updateTopic });
-
-  },
 
 };

@@ -13,14 +13,28 @@ const FormSchema = new Schema({
     required: true,
 
   },
-  image: {
+  city: {
     type: String,
     required: true,
 
   },
+  gender: {
+    type: String,
+    required: true,
+
+  },
+  age: {
+    type: Number,
+    required: true,
+
+  },
+  photos: [],
+
+  likes: [{}],
+  likedMe: [],
 
 });
+// 
 
 
-
-module.exports = mongoose.model('type12ForumUsers', FormSchema);
+module.exports = mongoose.model('DatingUsers', FormSchema);
